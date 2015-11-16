@@ -13,14 +13,20 @@
     </main>
 
     <script type="text/template" id="toDoInput">
-      <button class="clearAllBtn" type="button" name="button"></button>
+      <button class="clearAllBtn" type="button" name="button">Delete All</button>
       <input class="postInput" type="text" name="name" value="" placeholder="Watchu need to do fam?">
+      <div class="postOutput">
+
+      </div>
     </script>
 
     <script type="text/template" id="toDoItem">
-      <button class="doneBtn" type="button" name="button"></button>
-      <h3><%= item %></h3>
-      <button class="clearItemBtn" type="button" name="button"></button>
+      <% _.forEach(dunkelPost, function(data){ %>
+        <h3><%= data.post %></h3>
+        <%= data._id %>
+      <button class="doneBtn" type="button" name="Done">Done</button>
+      <button class="clearItemBtn" type="button" name="Delete">Delete</button>
+      <% }) %>
     </script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0-alpha1/jquery.min.js"></script>

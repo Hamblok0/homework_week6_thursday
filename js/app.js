@@ -1,12 +1,13 @@
-var url = 'https://tiny-starburst.herokuapp.com/collections/todobroj';
+
 
 // Model and Collections
 var toDoItem = Backbone.Model.extend({
-  url: url
+  urlRoot: 'https://tiny-starburst.herokuapp.com/collections/todobroj',
+  idAttribute: "_id"
 });
 
 var toDoItems = Backbone.Collection.extend({
-  url: url,
+  url: 'https://tiny-starburst.herokuapp.com/collections/todobroj',
   model: toDoItem
 });
 
@@ -15,33 +16,60 @@ var InputView = Backbone.View.extend({
   template: _.template($('#toDoInput').html()),
   events: {
     'keypress .postInput' : 'handlePost',
-    'click .clearButtonAll' : 'clearPosts'
+    'click .clearButtonAll' : 'clearPosts',
   },
   handlePost: function(event) {
-    if (event.keycode === 13) {
-      var postToDo = $('.postInput').val();
-      $('.postInput').val('');
-      var createToDo = new toDoItems();
-      createToDo.create({
-        post: postToDo,
-        urgent: false
+    var postToDo = $('.postInput').val();
+    if (event.keyCode === 13) {
+      if (postToDo.trim() === '') {
+        alert('Input field is empty')
+      } else {
+        $('.postInput').val('');
+        this.collection.create({
+          post: postToDo,
+          urgent: false,
+          done: false
       });
     }
-  },
+  }
+},
+
 
   clearPosts: function(event) {
-    this.collection.destroy();
+    this.collection.forEach(function(){
+
+    });
   },
 
   render: function(){
-    this.$el.html(this.template({
-      toDoItems: this.collection.toJSON()
-    }));
+
+    this.$el.html(this.template());
     return this
   }
 });
 
-var itemView = Backbone.View.extend({
+var ListView = Backbone.View.extend({
+  template: _.template($('#toDoItem').html()),
+  events: {
+    'click .clearItemBtn' : 'deleteThisPost',
+    'click .doneBtn' : 'itemDone'
+  },
+
+  deleteThisPost: function() {
+   
+  },
+
+  render: function(){
+    var dunkelPost = this.collection.toJSON();
+    this.$el.html(this.template({
+      dunkelPost: dunkelPost
+    }))
+    return this;
+  },
+  initialize: function() {
+    this.listenTo(this.collection, 'add', this.render);
+  },
+
 
 });
 
@@ -53,10 +81,21 @@ var toDoRouter = Backbone.Router.extend({
   },
 
   home: function(){
-    var view = new InputView();
+    var collection = new toDoItems();
+    var view = new InputView({collection: collection})
     $('main').html(view.render().$el);
 
-  }
+    var model = new toDoItem();
+    model.fetch({success:(function(collection, data, options){
+      var view2 = new ListView({
+        collection: collection
+      });
+      $('.postOutput').html(view2.render().$el);
+  })
+
+})
+}
+
 });
 
 var router = new toDoRouter();
